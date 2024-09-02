@@ -5,7 +5,7 @@ import numpy as np
 
 
 def grid_bot_strategy(df, start_date, end_date, initial_price, lower_limit, upper_limit, grid_levels, initial_capital):
-    # Filter the DataFrame by date and price range
+    # Filteration
     df['date'] = pd.to_datetime(df['date'])
     df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
     df = df[(df['close'] >= lower_limit) & (df['close'] <= upper_limit)]
@@ -22,6 +22,10 @@ def grid_bot_strategy(df, start_date, end_date, initial_price, lower_limit, uppe
 
     print(f"Initial Buy Level: {buy_level}, Initial Sell Level: {sell_level}")
     print(f"Grid Range: {grid_range}")
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# In this part , we are calculating buy/sell_level and appending trade log and open_positions to be closed in next itereation
 
     for i, row in df.iterrows():
         price = row['close']
@@ -56,11 +60,14 @@ def grid_bot_strategy(df, start_date, end_date, initial_price, lower_limit, uppe
                 'Price': price,
                 'B/S': 'Sell'
             }
-            # Update levels
+
             buy_level = sell_level - grid_range
             sell_level = sell_level + grid_range
 
-    # Match and close trades
+#  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# In this part , Match and close trades
+
     closed_trades = {}
     for trade in trade_log:
         date = trade['Date']
@@ -117,7 +124,6 @@ def grid_bot_strategy(df, start_date, end_date, initial_price, lower_limit, uppe
     return trade_log_df, closed_trades_df, total_pnl
 
 
-# Example usage
 df = pd.read_csv('BTC-2017min.csv')
 
 trade_log_df, closed_trades_df, total_pnl = grid_bot_strategy(
@@ -130,6 +136,11 @@ trade_log_df, closed_trades_df, total_pnl = grid_bot_strategy(
     grid_levels=15,
     initial_capital=1000
 )
+
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# Data Plotting
+
 
 # Plotting with dark theme and custom date format
 plt.style.use('fast')
@@ -172,7 +183,8 @@ for i in range(len(closed_trades_df) - 1):
 ax.set_title('Grid Trading Strategy')
 ax.set_xlabel('Date')
 ax.set_ylabel('Price')
-ax.set_ylim(3000, 6000)  # Ensure y-axis limits are within specified range
+# Ensure y-axis limits are within specified range, Change this too , if your'e changing U_level, and L_level
+ax.set_ylim(3000, 6000)
 ax.legend()
 ax.grid()
 plt.show()
